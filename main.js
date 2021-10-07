@@ -7,7 +7,7 @@ var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
 // sets the loop to run inside gameloop. Options are "playing", "finished" and "menu" so far
-var gamestate = "testing";
+var gamestate = "menu";
 
 // adds the sprite for the "finished"-screen and adds eventlistener for when the sprite is loaded
 var myImage = new Image();
