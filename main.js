@@ -6,7 +6,8 @@ TODO Make a deck with exercises like 12 - 4 = 8 -> Gegenaufgabe 8 + 4 = 12 or ma
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
-// sets the loop to run inside gameloop. Options are "playing", "finished" and "menu" so far
+// sets the loop to run inside gameloop. Options are "testing", "playing", "finished" and "menu" so far
+// gamestate can be set in game with t, p, f and m
 var gamestate = "menu";
 
 // adds the sprite for the "finished"-screen and adds eventlistener for when the sprite is loaded
@@ -17,7 +18,15 @@ myImage.addEventListener("load", imageLoaded, false);
 var yellowStar = new Image();
 yellowStar.src = "./stars/yellow-star.png";
 
+var playButtonImg = new Image();
+playButtonImg.src = "./assets/play-button.png";
+var libraryButtonImg = new Image();
+libraryButtonImg.src = "./assets/library-button.png";
+var titleImg = new Image();
+titleImg.src = "./assets/menu-title.png";
+
 // variables for the sprite animation function
+
 //bulmas values
 // var shift = 0;
 // var frameWidth = 211;
@@ -366,6 +375,16 @@ var io = {
                 io.clearInput();
                 console.log("wrong turn!")
             }
+        } else if (keyEvent.key == "m") {
+            gamestate = "menu";
+        } else if (keyEvent.key == "l") {
+            gamestate = "library";
+        } else if (keyEvent.key == "t") {
+            gamestate = "testing";
+        } else if (keyEvent.key == "p") {
+            gamestate = "playing";
+        } else if (keyEvent.key == "f") {
+            gamestate = "finished";
         }
     }
 }
@@ -430,25 +449,14 @@ function drawButton(string) {
     ctx.fillText(string, canvas.width / 2 - 45, canvas.height / 2 - 8);
 }
 
-function Button(x, y, width = 100, height = 50, text = "Button", color = "#FFAAAA") {
+function Button(x, y, onClickState, width , height) {
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
-    this.fillColor = color;
+    this.onClickState = onClickState;
     //this.strokeColor = color;
-    this.text = text;
-    this.draw = function () {
-        ctx.beginPath();
-        ctx.strokeRect(this.x, this.y, this.width, this.height);
-        ctx.rect(this.x, this.y, this.width, this.height);
-        ctx.fillStyle = this.fillColor;
-        ctx.fill();
-        ctx.closePath();
-        ctx.fillStyle = "#000000";
-        ctx.font = "25px Ubuntu";
-        ctx.fillText(this.text, this.x + this.width / 10, this.y + this.height / 1.5);
-    };
+    this.draw = NaN;
     this.registerButtonHandler = function () {
         canvas.addEventListener('click', this.handler);
     };
@@ -462,23 +470,50 @@ function Button(x, y, width = 100, height = 50, text = "Button", color = "#FFAAA
                 height: height
             };
             if (isInside(mousePos, rect)) {
-                gamestate = "playing";
-                gameloop();
+                gamestate = onClickState;
+                gameLoop();
             };
         };
     };
 }
+//-------------------------------------------------------------------------------------------------
+var menuButtonScaling = 0.7;
 
-var playButton = new Button(canvas.width / 2 - 60, canvas.height / 2 - 40, 100, 50, text = "play", color = "#AA00AA");
-console.log(playButton.text)
-//playButton.text = "play";
+var playButtonVals = {
+    x: canvas.width / 2 - playButtonImg.width * 0.7 / 2,
+    y: canvas.height / 3
+}
+
+var playButton = new Button(playButtonVals.x, playButtonVals.y, "playing", playButtonImg.width * menuButtonScaling, playButtonImg.height * menuButtonScaling);
 playButton.registerButtonHandler();
+playButton.draw = function() {
+    ctx.drawImage(playButtonImg, playButtonVals.x, playButtonVals.y, playButtonImg.width * menuButtonScaling, playButtonImg.height * menuButtonScaling);
+}
+
+
+var libraryButtonVals = {
+    x: playButtonVals.x,
+    y: canvas.height / 3 + libraryButtonImg.height
+}
+
+var libraryButton = new Button(libraryButtonVals.x, libraryButtonVals.y,"library", libraryButtonImg.width * menuButtonScaling, libraryButtonImg.height * menuButtonScaling);
+libraryButton.registerButtonHandler();
+libraryButton.draw = function() {
+    ctx.drawImage(libraryButtonImg, libraryButtonVals.x, libraryButtonVals.y, libraryButtonImg.width * menuButtonScaling, libraryButtonImg.height * menuButtonScaling);
+}
+
+function drawTitle() {
+    ctx.drawImage(titleImg, 0, 20, titleImg.width * 0.6, titleImg.height * 0.6);
+}
+
+
 
 function menumode() {
     ctx.clearRect(0, 0, canvas.width, canvas.height, 15, 15);
     drawBackground();
     playButton.draw();
-    //drawButton("Game");
+    libraryButton.draw();
+    drawTitle();
     requestAnimationFrame(gameLoop);
 }
 
@@ -522,10 +557,43 @@ setTimeout(function() {
   //your code to be executed after 1 second
 }, delayInMilliseconds);
 
+function drawDeckInLibrary() {
+    ctx.beginPath();
+    ctx.rect(50, 90, 100, 162);
+    ctx.fillStyle = "#FFAAAA";
+    ctx.fill();
+    ctx.closePath();
+    ctx.beginPath();
+    ctx.rect(230, 90, 100, 162);
+    ctx.fillStyle = "#FFAAAA";
+    ctx.fill();
+    ctx.closePath();
+    ctx.beginPath();
+    ctx.rect(410, 90, 100, 162);
+    ctx.fillStyle = "#FFAAAA";
+    ctx.fill();
+    ctx.closePath();
+}
+function drawDeckDescription() {
+    ctx.font = "14px Fira Code";
+    ctx.fillStyle = "#000000";
+    ctx.fillText("Deck: Testdeck \n operator: +", 20, 300);
+}
+
+function showLibrary() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height, 15, 15);
+    drawBackground();
+    drawDeckInLibrary();
+    drawDeckDescription();
+    requestAnimationFrame(gameLoop);
+}
+
 function testScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height, 15, 15);
     drawBackground();
-    var baseSize = 0.09
+    ctx.drawImage(playButtonImg, canvas.width / 2 - playButtonImg.width * 0.7 / 2, canvas.height / 3 - playButtonImg.height * 0.7 / 2, playButtonImg.width * 0.7, playButtonImg.height * 0.7);
+    requestAnimationFrame(gameLoop);
+}
     // if(current.stars < 10) {
     //     var yellowstarPos = findDrawPos(yellowStar.width * baseSize, yellowStar.height * baseSize, drawStarPos.x, drawStarPos.y);
     //     ctx.drawImage(yellowStar, yellowstarPos.x, yellowstarPos.y, yellowStar.width * baseSize, yellowStar.height * baseSize);
@@ -541,27 +609,27 @@ function testScreen() {
     var pinkstarPos = findDrawPos(pinkStar.width * 0.03, pinkStar.height * 0.03, drawStarPos.x, drawStarPos.y);
 
 
-    ctx.drawImage(pinkStar, pinkstarPos.x, pinkstarPos.y, pinkStar.width * 0.03, pinkStar.height * 0.03);
-    setTimeout(function() {
-        ctx.drawImage(marineblueStar, marinestarPos.x, marinestarPos.y, marineblueStar.width * 0.06, marineblueStar.height * 0.06);
-    }, delayInMilliseconds);
-    setTimeout(function() {
-        ctx.drawImage(skyblueStar, skybluestarPos.x, skybluestarPos.y, skyblueStar.width * 0.09, skyblueStar.height * 0.09);
-    }, delayInMilliseconds);
-    setTimeout(function() {
-    ctx.drawImage(greenStar, greenstarPos.x, greenstarPos.y, greenStar.width * 0.12, greenStar.height * 0.12);
-}, delayInMilliseconds);
-setTimeout(function() {
-    ctx.drawImage(yellowStar, yellowstarPos.x, yellowstarPos.y, yellowStar.width * 0.15, yellowStar.height * 0.15);
-}, delayInMilliseconds);
-setTimeout(function() {
-    ctx.drawImage(orangeStar, orangestarPos.x, orangestarPos.y, orangeStar.width * 0.18, orangeStar.height * 0.18);
-}, delayInMilliseconds);
-setTimeout(function() {
-    ctx.drawImage(redStar, redstarPos.x, redstarPos.y, redStar.width * 0.21, redStar.height * 0.21);
-}, delayInMilliseconds);
-requestAnimationFrame(gameLoop);
-}
+//     ctx.drawImage(pinkStar, pinkstarPos.x, pinkstarPos.y, pinkStar.width * 0.03, pinkStar.height * 0.03);
+//     setTimeout(function() {
+//         ctx.drawImage(marineblueStar, marinestarPos.x, marinestarPos.y, marineblueStar.width * 0.06, marineblueStar.height * 0.06);
+//     }, delayInMilliseconds);
+//     setTimeout(function() {
+//         ctx.drawImage(skyblueStar, skybluestarPos.x, skybluestarPos.y, skyblueStar.width * 0.09, skyblueStar.height * 0.09);
+//     }, delayInMilliseconds);
+//     setTimeout(function() {
+//     ctx.drawImage(greenStar, greenstarPos.x, greenstarPos.y, greenStar.width * 0.12, greenStar.height * 0.12);
+// }, delayInMilliseconds);
+// setTimeout(function() {
+//     ctx.drawImage(yellowStar, yellowstarPos.x, yellowstarPos.y, yellowStar.width * 0.15, yellowStar.height * 0.15);
+// }, delayInMilliseconds);
+// setTimeout(function() {
+//     ctx.drawImage(orangeStar, orangestarPos.x, orangestarPos.y, orangeStar.width * 0.18, orangeStar.height * 0.18);
+// }, delayInMilliseconds);
+// setTimeout(function() {
+//     ctx.drawImage(redStar, redstarPos.x, redstarPos.y, redStar.width * 0.21, redStar.height * 0.21);
+// }, delayInMilliseconds);
+// requestAnimationFrame(gameLoop);
+// }
 
 // mouse handling
 //Function to get the mouse position
@@ -606,6 +674,9 @@ function gameLoop() {
     }
     if (gamestate == "menu") {
         menumode();
+    }
+    if (gamestate == "library") {
+        showLibrary();
     }
     if (gamestate == "finished") {
         showVictoryScreen();
