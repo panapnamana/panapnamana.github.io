@@ -24,6 +24,8 @@ var libraryButtonImg = new Image();
 libraryButtonImg.src = "./assets/library-button.png";
 var titleImg = new Image();
 titleImg.src = "./assets/menu-title.png";
+var zwergenCardImg = new Image();
+zwergenCardImg.src = "./assets/zwergen-card.png";
 
 // variables for the sprite animation function
 
@@ -87,6 +89,30 @@ minusSpezial_6_7.blacklist = [1, 2, 3, 4, 5, 8, 9, 10];
 minusSpezial_6_7.applyBlacklist("right");
 minusSpezial_6_7.shuffle();
 
+var zwergeMinusDeck = new Deck("-", 20, 9);
+zwergeMinusDeck.make();
+zwergeMinusDeck.blacklist = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+zwergeMinusDeck.applyBlacklist("left");
+zwergeMinusDeck.blacklist = [1];
+zwergeMinusDeck.applyBlacklist("right");
+zwergeMinusDeck.lowerLimit = 10;
+zwergeMinusDeck.kickByLimit();
+var zwergePlusDeck = new Deck("+", 20, 10);
+zwergePlusDeck.make();
+zwergePlusDeck.blacklist = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+zwergePlusDeck.applyBlacklist("left");
+zwergePlusDeck.blacklist = [1];
+zwergePlusDeck.applyBlacklist("right");
+zwergePlusDeck.upperLimit = 20;
+zwergePlusDeck.kickByLimit();
+
+var zwergenDeck = new Deck(); 
+zwergenDeck.deck = zwergeMinusDeck.deck.concat(zwergePlusDeck.deck);
+zwergenDeck.shuffle();
+
+
+
+
 
 
 // deck for testing
@@ -94,7 +120,7 @@ var testDeck = new Deck("+", 4, 1);
 testDeck.make();
 
 // set the deck to use in "playing"-loop
-var current = matildasSubtractionUnder20;
+var current = zwergenDeck;
 
 
 // sets the background color
@@ -558,21 +584,7 @@ setTimeout(function() {
 }, delayInMilliseconds);
 
 function drawDeckInLibrary() {
-    ctx.beginPath();
-    ctx.rect(50, 90, 100, 162);
-    ctx.fillStyle = "#FFAAAA";
-    ctx.fill();
-    ctx.closePath();
-    ctx.beginPath();
-    ctx.rect(230, 90, 100, 162);
-    ctx.fillStyle = "#FFAAAA";
-    ctx.fill();
-    ctx.closePath();
-    ctx.beginPath();
-    ctx.rect(410, 90, 100, 162);
-    ctx.fillStyle = "#FFAAAA";
-    ctx.fill();
-    ctx.closePath();
+    ctx.drawImage(zwergenCardImg, canvas.width/2 - zwergenCardImg.width*0.5/2 , 40, zwergenCardImg.width * 0.5, zwergenCardImg.height * 0.5);
 }
 function drawDeckDescription() {
     ctx.font = "14px Fira Code";
@@ -584,7 +596,7 @@ function showLibrary() {
     ctx.clearRect(0, 0, canvas.width, canvas.height, 15, 15);
     drawBackground();
     drawDeckInLibrary();
-    drawDeckDescription();
+    //drawDeckDescription();
     requestAnimationFrame(gameLoop);
 }
 
