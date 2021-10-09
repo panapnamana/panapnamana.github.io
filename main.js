@@ -26,6 +26,8 @@ var titleImg = new Image();
 titleImg.src = "./assets/menu-title.png";
 var zwergenCardImg = new Image();
 zwergenCardImg.src = "./assets/zwergen-card.png";
+var riesenCardImg = new Image();
+riesenCardImg.src = "./assets/riesen-card.png";
 
 // variables for the sprite animation function
 
@@ -109,6 +111,24 @@ zwergePlusDeck.kickByLimit();
 var zwergenDeck = new Deck(); 
 zwergenDeck.deck = zwergeMinusDeck.deck.concat(zwergePlusDeck.deck);
 zwergenDeck.shuffle();
+
+var riesenPlusDeck = new Deck("+", 10, 10);
+riesenPlusDeck.make();
+riesenPlusDeck.lowerLimit = 10;
+riesenPlusDeck.kickByLimit();
+riesenPlusDeck.kickNum(1);
+riesenPlusDeck.kickNum(10);
+var riesenMinusDeck = new Deck("-", 20, 10);
+riesenMinusDeck.make();
+riesenMinusDeck.lowerLimit = 1;
+riesenMinusDeck.upperLimit = 10;
+riesenMinusDeck.kickByLimit();
+riesenMinusDeck.kickNum(1);
+riesenMinusDeck.blacklist = [2,3,4,5,6,7,8,9,10];
+riesenMinusDeck.applyBlacklist("left");
+var riesenDeck = new Deck();
+riesenDeck.deck = riesenPlusDeck.deck.concat(riesenMinusDeck.deck);
+riesenDeck.shuffle();
 
 
 
@@ -487,7 +507,7 @@ function Button(x, y, onClickState, width , height) {
         canvas.addEventListener('click', this.handler);
     };
     this.handler = function (mouseEvent) {
-        if (gamestate == "menu") {
+        if (gamestate == "menu" || gamestate == "library") {
             var mousePos = getMousePos(canvas, mouseEvent);
             var rect = {
                 x: x,
@@ -496,8 +516,15 @@ function Button(x, y, onClickState, width , height) {
                 height: height
             };
             if (isInside(mousePos, rect)) {
-                gamestate = onClickState;
-                gameLoop();
+                console.log("clicked")
+                if(gamestate == "library") {
+                    current = onClickState;
+                    gameLoop();
+                }
+                if(gamestate == "menu") {
+                    gamestate = onClickState;
+                    gameLoop();
+                }
             };
         };
     };
@@ -583,8 +610,37 @@ setTimeout(function() {
   //your code to be executed after 1 second
 }, delayInMilliseconds);
 
+var zwergenDeckButton = new Button(canvas.width/2 - zwergenCardImg.width*0.5/2 - 100, 40, zwergenDeck, zwergenCardImg.width * 0.5, zwergenCardImg.height * 0.5)
+zwergenDeckButton.registerButtonHandler();
+var riesenDeckButton = new Button(canvas.width/2 - riesenCardImg.width*0.5/2 + 100, 40, riesenDeck, riesenCardImg.width * 0.5, riesenCardImg.height * 0.5 )
+riesenDeckButton.registerButtonHandler();
+
 function drawDeckInLibrary() {
-    ctx.drawImage(zwergenCardImg, canvas.width/2 - zwergenCardImg.width*0.5/2 , 40, zwergenCardImg.width * 0.5, zwergenCardImg.height * 0.5);
+    if(zwergenDeck == current) {
+    ctx.beginPath();
+    ctx.rect(canvas.width/2 - zwergenCardImg.width*0.5/2 - 70 - 38, 40 - 10, riesenCardImg.width * 0.55, riesenCardImg.height * 0.55 + 30);
+    ctx.fillStyle = "#FFDD66";
+    ctx.fill();
+    ctx.closePath();
+    }
+    ctx.drawImage(zwergenCardImg, canvas.width/2 - zwergenCardImg.width*0.5/2 - 100, 40, zwergenCardImg.width * 0.5, zwergenCardImg.height * 0.5);
+    ctx.font = "14px Fira Code";
+    ctx.fillStyle = "#000000";
+    ctx.fillText("Zwergen Deck", canvas.width/2 - zwergenCardImg.width*0.5/2 - 70, 300);
+    ctx.fillText("72 Aufgaben", canvas.width/2 - zwergenCardImg.width*0.5/2 - 70, 317);
+    ctx.fillText("Drücke \"m\" um zum Menu zurückzukehren.", 10, 20);
+    if(riesenDeck == current) {
+        ctx.beginPath();
+        ctx.rect(canvas.width/2 - zwergenCardImg.width*0.5/2 - 70 + 162, 40 - 10, riesenCardImg.width * 0.55, riesenCardImg.height * 0.55 + 30);
+        ctx.fillStyle = "#FFDD66";
+        ctx.fill();
+        ctx.closePath();
+    }
+    ctx.drawImage(riesenCardImg, canvas.width/2 - riesenCardImg.width*0.5/2 + 100, 40, riesenCardImg.width * 0.5, riesenCardImg.height * 0.5);
+    ctx.font = "14px Fira Code";
+    ctx.fillStyle = "#000000";
+    ctx.fillText("Riesen Deck", canvas.width/2 - riesenCardImg.width*0.5/2 + 200 - 70, 300);
+    ctx.fillText("80 Aufgaben", canvas.width/2 - riesenCardImg.width*0.5/2 + 200 - 70, 317);
 }
 function drawDeckDescription() {
     ctx.font = "14px Fira Code";
